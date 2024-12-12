@@ -1,0 +1,80 @@
+# We have a dockerfile for arm64 provided by Benny Dai @bennydai
+FROM --platform=linux/arm64 ros:noetic-perception
+
+# Install graphical drivers
+RUN apt-get update && apt-get install -y xorg-dev libglu1-mesa-dev
+
+# Install git and software properties
+RUN apt-get update && apt-get install -y software-properties-common git
+
+# Install full desktop
+RUN apt-get update && apt-get install -y ros-noetic-desktop-full
+
+# Upgrade Python Packages, cmake and catkin tools
+RUN apt-get install -y python3-pip
+RUN pip3 install --upgrade pip
+RUN pip3 install cmake --upgrade
+RUN pip3 install catkin-tools
+RUN pip3 install catkin_pkg
+RUN apt-get install -y python3-catkin-tools python3-vcstool
+RUN rosdep update
+
+# Install tf2
+RUN apt-get update && apt-get install -y ros-noetic-tf2-sensor-msgs
+
+# Install OpenVDB dependencies
+RUN apt-get update && apt-get install -y \
+    libblosc-dev \
+    libboost-iostreams-dev \
+    libboost-system-dev \
+    libboost-system-dev \
+    libeigen3-dev
+
+# Install OpenVDB
+WORKDIR /opt/
+RUN git clone --depth 1 https://github.com/nachovizzo/openvdb.git \
+    -b nacho/vdbfusion \
+    && cd openvdb \
+    && mkdir build && cd build \
+    && cmake  -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DUSE_ZLIB=OFF .. \
+    && make -j4 \
+    && make install
+
+# Install glog
+RUN git clone https://github.com/google/glog.git \
+    && cd glog \
+    && git fetch --all --tags \
+    && git checkout tags/v0.4.0 -b v0.4.0 \
+    && mkdir build && cd build \
+    && cmake .. && make -j4 \
+    && make install
+
+# Install glag
+RUN git clone https://github.com/gflags/gflags.git \
+    && cd gflags \
+    && mkdir build && cd build \
+    && cmake .. -DBUILD_SHARED_LIBS=ON && make -j4 \
+    && make install
+
+# Make a catkin workspace
+RUN mkdir -p /catkin_ws/src/
+WORKDIR /catkin_ws/
+
+# Create workspace
+RUN /bin/bash -c "/ros_entrypoint.sh; catkin config \
+        --init --mkdirs --extend /opt/ros/noetic --merge-devel \
+        --cmake-args -DCMAKE_BUILD_TYPE=Release"
+
+# Copy the VDB_GPDF repo
+COPY ./VDB_GPDF/ /catkin_ws/src/VDB_GPDF/
+
+# Build the workspace
+RUN /bin/bash -c "/ros_entrypoint.sh; catkin build"
+
+# Copy source into .bashrc
+RUN echo "source /catkin_ws/devel/setup.bash" >> /root/.bashrc
+
+# Set the working directory and make terminal colourful
+ENV TERM xterm-=256color
+WORKDIR /catkin_ws/
+SHELL ["/bin/bash", "-c"]

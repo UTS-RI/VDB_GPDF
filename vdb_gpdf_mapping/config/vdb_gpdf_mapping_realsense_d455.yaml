@@ -1,0 +1,78 @@
+# input topic name setting ===========> Please change according to your dataset
+lidar_topic: "/raw_points_forvdb"
+
+# pose_source has three options: [0:tf_tree, 1:tf_topic, 2:odom_topic]
+# for tf_tree, need to provide child_frame and world_frame
+# for tf_topic, need to provide tf_topic
+# for odom_topic, need to provide odom_topic
+pose_source: 1 
+tf_topic: "/vins_estimator/camera_transform"
+
+world_frame: "world"
+timestamp_tolerance_ms: 0
+
+debug_print: false
+enable_databuf: false
+
+min_scan_range: 0.1 # Ignore points closer than this value (meters) (default 0.4)
+max_scan_range: 4.0 # Ignore points far than this value (meters) (default 12.0)
+max_height: 5.0 # ignore points higher than this value default 5.0
+
+fill_holes: true
+use_color: true
+
+sdf_trunc: 0.1 # this param is for vdbfusion comparison
+space_carving: true # this param is for vdbfusion comparison
+
+# 0: RevertingGPDF, refer the paper "Accurate Gaussian-Process-based Distance Fields with applications to Echolocation and Mapping"
+# 1: LogGPDF, refer the paper "Faithful Euclidean Distance Field from Log-Gaussian Process Implicit Surfaces"
+distance_method: 0
+
+sensor_type: 0 # 0 for depth camera, 1 for lidar
+voxel_size_local: 0.02
+voxel_overlapping: -1 # positive: enable with value; negative: disable
+voxel_downsample: 5 
+voxel_size_global: 0.05
+
+# 0 not use variance, constant weight
+# 1 for use variance, weight = 1-variance
+# 2 for u(x) probabilistic fusion 1/variance
+# 3 for v(x) probabilistic fusion 1/variance
+variance_method: 0
+variance_cap: 0.1
+variance_on_surface: 0.001
+recon_min_weight: 0.1
+
+surface_normal_method: 0 # 0 for pcl, 1 for raycasting
+surface_normal_num: 20
+surface_value: -1 # -1 for in 1 for out
+query_iterval: 0.05
+query_trunc_in: 3
+query_trunc_out: 2
+freespace_iterval: 0.05
+freespace_trunc_out: 2 # positive: enable with value; negative: disable
+query_downsample: -1 # positive: enable with value; negative: disable
+
+# we use RevertingGPDF as default in the paper and in the code
+# for RevertingGPDF: map_lambda_scale = 1/((length_scale)^2), length_scale is the same definition as in gp se kernel
+# for LogGPDF: map_lambda_scale = sqrt(3)/length_scale, length_scale is the same definition as in gp matern 3/2 kernel
+map_lambda_scale: 900 
+map_noise: 0.01
+
+# color range is 0 to 255, color_scale = 1/((length_scale)^2), length_scale is the same definition as in gp se kernel
+color_scale: 10
+
+# big value to smooth good global distance inference, for example 10 to 100, but toooo big value will cause numerical issue
+smooth_param: 100
+
+# Static Transform
+invert_static_tf: True
+# Translation
+tx: 0
+ty: 0
+tz: 0
+# Rotation Quaternion
+x: 0
+y: 0
+z: 0
+w: 1
