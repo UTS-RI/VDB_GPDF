@@ -118,9 +118,11 @@ private:
 class VDBVolume {
 
 public:
-    VDBVolume(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private);
+    // IMPORTANT TODO: get rid of ros handle here
+    VDBVolume(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private); 
     ~VDBVolume() = default;
-
+    // IMPORTANT TODO: get rid of ros handle here
+    
     /// @brief Integrates a new (globally aligned) PointCloud into the current
     /// gsdf_ volume.
     void Integrate(const std::vector<Eigen::Vector3d> &points,

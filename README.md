@@ -1,6 +1,6 @@
 VDB_GPDF
 ---
-In this paper, we present an online efficient mapping framework that seamlessly couples GP distance fields and the fast-access OpenVDB data structure.
+In this paper, we present an online efficient mapping framework that seamlessly couples GP distance fields and the fast-access OpenVDB data structure. Currently, this repo is for ROS1, our ROS2 version will be release in a few weeks.
 
  * [Paper](https://arxiv.org/pdf/2407.09649)
  * [Video](https://youtu.be/xygIuZBvQT8)
@@ -197,7 +197,7 @@ rosservice call /slice_query_map [-30,120,-140,30,0.9,0.15]
 
 # TODO
 
-- Add ROS2 revision
+- Add ROS2 revision (Done, it will be released in a few weeks)
 
 - Add the localisation framework to have live poses for the our mapping framework
 

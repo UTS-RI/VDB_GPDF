@@ -114,6 +114,7 @@ inline double kf_ma2(float r, float dx1, float dx2, float delta, float a){ // 2 
 
 VDBVolume::VDBVolume(const ros::NodeHandle &nh, 
                      const ros::NodeHandle &nh_private)
+                     //TODO: get rid of ros handle, make the vdb gpdf layer pure
     : nh_(nh), nh_private_(nh_private){
 
   nh_private_.getParam("debug_print", debug_print_);
@@ -204,12 +205,15 @@ void VDBVolume::Integrate(
     
     auto [disAllTesting, varAllTesting, rrAllTesting, ggAllTesting, bbAllTesting] = 
     ComputeVoxelsDistances(localGPs, localGPsCenters, localQueryPoints, localQueryPointsSig);
+    TOC("compute voxels distances", debug_print_);
 
     localQueryDis = disAllTesting;
     Fusion(localQueryPoints, disAllTesting, varAllTesting, 
           rrAllTesting, ggAllTesting, bbAllTesting, weighting_function);
+    TOC("fusion", debug_print_);
 
     PrepareGlobalDistanceField(globalGPsPoints, globalGPsPointsColor);
+    TOC("prepare global distance field", debug_print_);
 }
 
 void VDBVolume::Integrate(
