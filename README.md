@@ -200,13 +200,6 @@ rosservice call /slice_query_map [-30,120,-140,30,0.9,0.15]
 }
 ```
 
-# TODO
-
-- Add ROS2 revision (Done, it will be released in a few weeks)
-
-- Add the localisation framework to have live poses for the our mapping framework
-
-
 # Acknowledgement
 
 We sincerely thank the authors of the repositories listed below for making their code available.
