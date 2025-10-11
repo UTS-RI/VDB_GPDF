@@ -1,7 +1,7 @@
 VDB_GPDF for ROS2
 ---
-# 🚀 This branch is the ROS2 version of VDB-GPDF. For ROS1 version and docker, please go to [the main branch](https://github.com/UTS-RI/VDB_GPDF).
-# 🎉 We will present VDB-GPDF at [IROS 2025, Session Mapping 4](https://ras.papercept.net/conferences/conferences/IROS25/program/IROS25_ContentListWeb_3.html). See you there!
+## 🚀 This branch is the ROS2 version of VDB-GPDF. For ROS1 version and docker, please go to [the main branch](https://github.com/UTS-RI/VDB_GPDF).
+## 🎉 We will present VDB-GPDF at [IROS 2025, Session Mapping 4](https://ras.papercept.net/conferences/conferences/IROS25/program/IROS25_ContentListWeb_3.html). See you there!
 
  * [Paper](https://arxiv.org/pdf/2407.09649)
  * [Video](https://youtu.be/xygIuZBvQT8)
