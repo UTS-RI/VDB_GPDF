@@ -1,7 +1,0 @@
-float64[] slice_ranges
----
-time stamp
-float64[] points
-float64[] gradients
-float64[] distances
-bool[] if_observed

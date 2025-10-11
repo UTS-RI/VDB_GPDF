@@ -1,25 +1,40 @@
 cmake_minimum_required(VERSION 3.3.2)
 project(minkindr)
 
-find_package(catkin_simple REQUIRED)
-catkin_simple(ALL_DEPS_REQUIRED)
+# Use ament_cmake for ROS2 build system
+find_package(ament_cmake REQUIRED)
 
-find_package(Threads)
+# Dependencies
+find_package(Threads REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(gflags REQUIRED)
 
-catkin_add_gtest(${PROJECT_NAME}_tests 
-  test/test-main.cc
-  test/test-rotation.cc
-  test/test-sim3.cc
-  test/test-transformation.cc
-  test/test-transformation-2d.cc
-)
-target_link_libraries(${PROJECT_NAME}_tests ${catkin_LIBRARIES} 
-                                            ${CMAKE_THREAD_LIBS_INIT})
+# Testing
+find_package(ament_lint_auto REQUIRED)
+find_package(ament_cmake_gtest REQUIRED)
 
-# Add all files to show up in QtCreator.
-FILE(GLOB_RECURSE LibFiles "include/*")
+find_package(Eigen3 REQUIRED)
+#find_package(kindr REQUIRED)
+
+# Include directories
+include_directories(${EIGEN3_INCLUDE_DIR})
+#include_directories(${KINDR_INCLUDE_DIR})
+
+# Add files for QtCreator (optional)
+file(GLOB_RECURSE LibFiles "include/*")
 add_custom_target(headers SOURCES ${LibFiles})
 
-cs_install()
-cs_export()
+# Install and export package
+install(DIRECTORY include/
+  DESTINATION include/${PROJECT_NAME}
+)
+
+ament_package()
+
 

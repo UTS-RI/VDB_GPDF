@@ -18,6 +18,7 @@
  */
 
 #pragma once
+#include <rclcpp/rclcpp.hpp>
 #include <openvdb/openvdb.h>
 
 #include <gflags/gflags.h>
@@ -26,12 +27,13 @@
 #include <Eigen/Core>
 #include <functional>
 #include <tuple>
+#include <cmath>
 
 #include <pcl/common/transforms.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
+//#include <pcl_conversions/pcl_conversions.h>
 #include <pcl/search/kdtree.h> 
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d_omp.h>
@@ -118,11 +120,11 @@ private:
 class VDBVolume {
 
 public:
-    // IMPORTANT TODO: get rid of ros handle here
-    VDBVolume(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private); 
+    //VDBVolume(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private);.
+    VDBVolume(std::shared_ptr<rclcpp::Node> node);
+
     ~VDBVolume() = default;
-    // IMPORTANT TODO: get rid of ros handle here
-    
+
     /// @brief Integrates a new (globally aligned) PointCloud into the current
     /// gsdf_ volume.
     void Integrate(const std::vector<Eigen::Vector3d> &points,
@@ -229,8 +231,7 @@ private:
     void PrepareGlobalDistanceField(std::vector<Eigen::Vector3d> &globalGPsPoints, std::vector<openvdb::Vec3i> &globalGPsPointsColor);
 
     /// VDBVolume private properties
-    ros::NodeHandle nh_;
-    ros::NodeHandle nh_private_;
+    std::shared_ptr<rclcpp::Node> node_;
     bool debug_print_ = false;
     bool use_color_ = false;
 
@@ -240,10 +241,10 @@ private:
     int distance_method_ = 0;
 
     int sensor_type_ = 0;
-    float voxel_size_lo_ = 0.0;
-    int voxel_overlapping_ = 0;
-    int voxel_downsample_ = 0;
-    float voxel_size_gl_ = 0.0;
+    float voxel_size_lo_ = 0.02;
+    int voxel_overlapping_ = -1;
+    int voxel_downsample_ = 5;
+    float voxel_size_gl_ = 0.05;
 
     int variance_method_ = 0;
     float variance_cap_ = 0;
@@ -251,7 +252,7 @@ private:
 
     int surface_normal_method_ = 0;
     int surface_normal_num_ = 0;
-    float surface_value_ = 0;
+    float surface_value_ = 0.0;
     float query_iterval_ = 0.0;
     int query_trunc_in_ = 0;
     int query_trunc_out_ = 0;

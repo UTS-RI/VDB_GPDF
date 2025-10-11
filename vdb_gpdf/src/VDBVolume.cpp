@@ -112,42 +112,76 @@ inline double kf_ma1(double r, double dx, double a) {return a*a*dx*exp(-a*r);} /
 inline double kf_ma2(float r, float dx1, float dx2, float delta, float a){ // 2 derivative of se kernel
   return a*a*(delta-a*dx1*dx2/r)*exp(-a*r);}
 
-VDBVolume::VDBVolume(const ros::NodeHandle &nh, 
-                     const ros::NodeHandle &nh_private)
-                     //TODO: get rid of ros handle, make the vdb gpdf layer pure
-    : nh_(nh), nh_private_(nh_private){
+VDBVolume::VDBVolume(std::shared_ptr<rclcpp::Node> node)
+      //TODO: get rid of ros handle, make the vdb gpdf layer pure
+      //TODO: get rid of ros handle, make the vdb gpdf layer pure
+      //TODO: get rid of ros handle, make the vdb gpdf layer pure
+      : node_(node) {
+  RCLCPP_INFO(node_->get_logger(), "VDBVolume initializing.");
+  node_->declare_parameter<float>("sdf_trunc", 0.1);
+  node_->declare_parameter<bool>("space_carving", true);
 
-  nh_private_.getParam("debug_print", debug_print_);
-  nh_private_.getParam("use_color", use_color_);
-  nh_private_.getParam("sdf_trunc", sdf_trunc_);
-  nh_private_.getParam("space_carving", space_carving_);
+  node_->declare_parameter<int>("distance_method", 0);
 
-  nh_private_.getParam("distance_method", distance_method_);
+  node_->declare_parameter<int>("sensor_type", 5);
+  node_->declare_parameter<float>("voxel_size_local", 0.02);
+  node_->declare_parameter<int>("voxel_overlapping", -1);
+  node_->declare_parameter<int>("voxel_downsample", 5);
+  node_->declare_parameter<float>("voxel_size_global", 0.05);
+
+  node_->declare_parameter<int>("variance_method", 0);
+  node_->declare_parameter<float>("variance_cap", 0.1);
+  node_->declare_parameter<float>("variance_on_surface", 0.001);
+
+  node_->declare_parameter<int>("surface_normal_method", 0);
+  node_->declare_parameter<int>("surface_normal_num", 20);
+  node_->declare_parameter<float>("surface_value", -1.0);
+  node_->declare_parameter<float>("query_iterval", 0.05);
+  node_->declare_parameter<int>("query_trunc_in", 3);
+  node_->declare_parameter<int>("query_trunc_out", 2);
+  node_->declare_parameter<float>("freespace_iterval", 0.05);
+  node_->declare_parameter<int>("freespace_trunc_out", 2);
+  node_->declare_parameter<float>("query_downsample", -1);
+
+  node_->declare_parameter<double>("map_lambda_scale", 900.0);
+  node_->declare_parameter<double>("map_noise", 0.01);
+  node_->declare_parameter<double>("color_scale", 10.0);
+  node_->declare_parameter<double>("smooth_param", 100.0);
+
+  // Getting parameters (equivalent to getParam in ROS1)
+  node_->get_parameter("debug_print", debug_print_);
+  node_->get_parameter("use_color", use_color_);
+  node_->get_parameter("sdf_trunc", sdf_trunc_);
+  node_->get_parameter("space_carving", space_carving_);
+
+  node_->get_parameter("distance_method", distance_method_);
+
+  node_->get_parameter("sensor_type", sensor_type_);
+  node_->get_parameter("voxel_size_local", voxel_size_lo_);
+  node_->get_parameter("voxel_overlapping", voxel_overlapping_);
+  node_->get_parameter("voxel_downsample", voxel_downsample_);
+  node_->get_parameter("voxel_size_global", voxel_size_gl_);
+
+  node_->get_parameter("variance_method", variance_method_);
+  node_->get_parameter("variance_cap", variance_cap_);
+  node_->get_parameter("variance_on_surface", variance_on_surface_);
+
+  node_->get_parameter("surface_normal_method", surface_normal_method_);
+  node_->get_parameter("surface_normal_num", surface_normal_num_);
+  node_->get_parameter("surface_value", surface_value_);
+  node_->get_parameter("query_iterval", query_iterval_);
+  node_->get_parameter("query_trunc_in", query_trunc_in_);
+  node_->get_parameter("query_trunc_out", query_trunc_out_);
+  node_->get_parameter("freespace_iterval", freespace_iterval_);
+  node_->get_parameter("freespace_trunc_out", freespace_trunc_out_);
+  node_->get_parameter("query_downsample", query_downsample_);
+
+  node_->get_parameter("map_lambda_scale", map_lambda_scale_);
+  node_->get_parameter("map_noise", map_noise_);
+  node_->get_parameter("color_scale", color_scale_);
+  node_->get_parameter("smooth_param", smooth_param_);
   
-  nh_private_.getParam("sensor_type", sensor_type_);
-  nh_private_.getParam("voxel_size_local", voxel_size_lo_);
-  nh_private_.getParam("voxel_overlapping", voxel_overlapping_);
-  nh_private_.getParam("voxel_downsample", voxel_downsample_);
-  nh_private_.getParam("voxel_size_global", voxel_size_gl_);
-
-  nh_private_.getParam("variance_method", variance_method_);
-  nh_private_.getParam("variance_cap", variance_cap_);
-  nh_private_.getParam("variance_on_surface", variance_on_surface_);
-  
-  nh_private_.getParam("surface_normal_method", surface_normal_method_);
-  nh_private_.getParam("surface_normal_num", surface_normal_num_);
-  nh_private_.getParam("surface_value", surface_value_);
-  nh_private_.getParam("query_iterval", query_iterval_);
-  nh_private_.getParam("query_trunc_in", query_trunc_in_);
-  nh_private_.getParam("query_trunc_out", query_trunc_out_);
-  nh_private_.getParam("freespace_iterval", freespace_iterval_);
-  nh_private_.getParam("freespace_trunc_out", freespace_trunc_out_);
-  nh_private_.getParam("query_downsample", query_downsample_);
-
-  nh_private_.getParam("map_lambda_scale", map_lambda_scale_);
-  nh_private_.getParam("map_noise", map_noise_);
-  nh_private_.getParam("color_scale", color_scale_);
-  nh_private_.getParam("smooth_param", smooth_param_);
+  RCLCPP_INFO(node_->get_logger(), "sensor type mode: %d", sensor_type_);
 
   gsdf_ = openvdb::FloatGrid::create(-100); // default value for each voxel
   gsdf_->setName("D(x): signed distance grid");
@@ -166,6 +200,8 @@ VDBVolume::VDBVolume(const ros::NodeHandle &nh,
   colors_->setTransform(
       openvdb::math::Transform::createLinearTransform(voxel_size_gl_));
   colors_->setGridClass(openvdb::GRID_UNKNOWN);
+
+  RCLCPP_INFO(node_->get_logger(), "VDBVolume initialized successfully.");
 }
 
 void VDBVolume::Integrate(
@@ -205,12 +241,14 @@ void VDBVolume::Integrate(
     
     auto [disAllTesting, varAllTesting, rrAllTesting, ggAllTesting, bbAllTesting] = 
     ComputeVoxelsDistances(localGPs, localGPsCenters, localQueryPoints, localQueryPointsSig);
-    TOC("compute voxels distances", debug_print_);
+
+    TOC("compute voxel distances", debug_print_);
 
     localQueryDis = disAllTesting;
     Fusion(localQueryPoints, disAllTesting, varAllTesting, 
           rrAllTesting, ggAllTesting, bbAllTesting, weighting_function);
     TOC("fusion", debug_print_);
+    
 
     PrepareGlobalDistanceField(globalGPsPoints, globalGPsPointsColor);
     TOC("prepare global distance field", debug_print_);
@@ -643,7 +681,7 @@ void VDBVolume::GenerateVoxelsToUpdate(
           // cap crazy variance in LogGPDF and RevertingGPDF
           if(variance >= variance_cap_) variance = variance_cap_;
           // nan means we have log(1) which is the exact surface, so the variance should be very low
-          if(isnan(variance)) variance = variance_on_surface_;
+          if(std::isnan(variance)) variance = variance_on_surface_;
         }
       }else if (distance_method_ == 1)
       {
@@ -656,7 +694,7 @@ void VDBVolume::GenerateVoxelsToUpdate(
           // cap crazy variance in LogGPDF and RevertingGPDF
           if(variance >= variance_cap_) variance = variance_cap_;
           // nan means we have log(1) which is the exact surface, so the variance should be very low
-          if(isnan(variance)) variance = variance_on_surface_;
+          if(std::isnan(variance)) variance = variance_on_surface_;
         }
       }
 
@@ -670,7 +708,7 @@ void VDBVolume::GenerateVoxelsToUpdate(
       
       //totalExpd = totalExpd + value*exp(-smooth_param_*value);
       //totalExp = totalExp + exp(-smooth_param_*value);
-      if(isinf(totalVal)) totalVal = distancesKNN[testIdx+idxCloseSearch];
+      if(std::isinf(totalVal)) totalVal = distancesKNN[testIdx+idxCloseSearch];
     }
     #pragma omp critical
     {
@@ -708,7 +746,7 @@ void VDBVolume::Fusion(const std::vector<Eigen::Vector3d> &voxelsToUpdate, //vox
   
   size_t voxelsToUpdate_size = voxelsToUpdate.size();
   for (size_t i = 0; i < voxelsToUpdate_size; ++i) {
-      if(isinf(disAllTesting[i])) continue;
+      if(std::isinf(disAllTesting[i])) continue;
   
       openvdb::math::Vec3d voxeltemp(voxelsToUpdate[i].x(),voxelsToUpdate[i].y(),voxelsToUpdate[i].z()); 
       openvdb::math::Vec3d v_wf = xform.worldToIndex(voxeltemp);
@@ -1037,7 +1075,7 @@ bool VDBVolume::QueryMap(float *points,
       }
       
       // if numerical issue happens, try to give the distance value from knn search, do not use it for distance evluation
-      if(isinf(val)) val = sqrt(distancesKNNGlobal[testIdx+idxCloseSearch]);
+      if(std::isinf(val)) val = sqrt(distancesKNNGlobal[testIdx+idxCloseSearch]);
       
       //#pragma omp critical
       {

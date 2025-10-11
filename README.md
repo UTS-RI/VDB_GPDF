@@ -1,6 +1,7 @@
-VDB_GPDF
+VDB_GPDF for ROS2
 ---
-In this paper, we present an online efficient mapping framework that seamlessly couples GP distance fields and the fast-access OpenVDB data structure. Currently, this repo is for ROS1, our ROS2 version will be released in a few weeks.
+# 🚀 This branch is the ROS2 version of VDB-GPDF. For ROS1 version and docker, please go to [the main branch](https://github.com/UTS-RI/VDB_GPDF).
+# 🎉 We will present VDB-GPDF at [IROS 2025, Session Mapping 4](https://ras.papercept.net/conferences/conferences/IROS25/program/IROS25_ContentListWeb_3.html). See you there!
 
  * [Paper](https://arxiv.org/pdf/2407.09649)
  * [Video](https://youtu.be/xygIuZBvQT8)
@@ -11,54 +12,20 @@ In this paper, we present an online efficient mapping framework that seamlessly 
 # Description
 The key aspect is a latent Local GP Signed Distance Field (L-GPDF) contained in a local VDB structure that allows fast queries of the Euclidean distance, surface properties and their uncertainties for points in the field of view. Probabilistic fusion is then performed by merging the inferred values of these points into a global VDB structure that is efficiently maintained over time. After fusion, the surface mesh is recovered, and a global GP Signed Distance Field (G-GPDF) is generated and made available for downstream applications to query accurate distance and gradients. 
 
-# Docker Install
-
-## Docker Pull
-
-```bash
-# use docker pull to get the image
-docker pull lanwu076/vdb_gpdf
-
-# download the cow and lady dataset from eth
-wget http://robotics.ethz.ch/~asl-datasets/iros_2017_voxblox/data.bag
-
-# please decompress the bag, rename the decompressed bag as data.bag and put your bag path below
-sudo docker run -it --net=host -v /dev/shm:/dev/shm -v ${data_path, e.g. /home/lan/Downloads/data}:/workspace/data --name vdb_gpdf_mapping lanwu076/vdb_gpdf
-```
-
-## Docker Build
-
-```bash
-# or build through Dockerfile and run the following commands as well
-docker build . -t vdb_gpdf
-
-# download the cow and lady dataset from eth
-wget http://robotics.ethz.ch/~asl-datasets/iros_2017_voxblox/data.bag
-
-# please decompress the bag, rename the decompressed bag as data.bag and put your bag path below
-docker run -it --net=host -v /dev/shm:/dev/shm -v ${data_path, e.g. /home/lan/Downloads/data}:/workspace/data --name vdb_gpdf_mapping vdb_gpdf
-
-# clone the repo
-git clone --recurse-submodules https://github.com/UTS-RI/VDB_GPDF.git /workspace/vdb_gpdf_mapping_ws/src
-
-# build the project
-catkin build
-```
-
-# Local Install
+# ROS2 Local Install
 
 ## Dependencies
 
-To deploy it on your own pc environment. Please install some dependencies. Tested system: Ubuntu 20.04 and ROS1 Noetic.
-- python3 (3.8.10)
-- eigen (3.3.7)
+To deploy it on your own pc environment. Please install some dependencies. Tested system: Ubuntu 22.04 and ROS2 humble.
+- python3 (3.10.12)
+- eigen (3.4.0)
 - gflag (2.2.2)
-- glog (0.4.0)
+- glog (0.5.0)
 - openmp (4.5)
-- boost (1.71.0)
+- boost (1.80)
 - [OpenVDB](https://github.com/nachovizzo/openvdb.git): (9.1.1)
 
-If you have ROS1 already, then hopefully installing the OpenVDB will be enough.
+If you have ROS2 already, then hopefully installing the OpenVDB will be enough.
 
 ## Dependencies of OpenVDB
 
@@ -91,7 +58,6 @@ more official install and problems, please click [here: https://www.openvdb.org/
 ## Clone the VDB_GPDF
 
 ```bash
-# from github
 git clone --recurse-submodules git@github.com:UTS-RI/VDB_GPDF.git
 ```
 Please remove the catkin_simple package and minkindr package in 3dparty folder if you have them already.
@@ -104,16 +70,9 @@ Temporary [link](https://drive.google.com/drive/folders/1bb3k2-XcJ2lXjxOPS4Th6Iu
 
 # Run
 
-## Docker
 After sourcing your bash, run the roslaunch for the cow and lady dataset directly. 
 ```bash
-roslaunch vdb_gpdf_ros vdb_gpdf_mapping_docker.launch
-```
-
-## Local
-After sourcing your bash, run the roslaunch for the cow and lady dataset directly. 
-```bash
-roslaunch vdb_gpdf_ros vdb_gpdf_mapping_cow.launch
+ros2 launch vdb_gpdf_mapping vdb_gpdf_mapping_cow.py
 ```
 
 # Services
@@ -121,11 +80,16 @@ roslaunch vdb_gpdf_ros vdb_gpdf_mapping_cow.launch
 During or after the running, we can call the services. The save_map service is to save the map as .pcd and .ply under your path. After calling, it will also publish the vertices (as a point cloud) of the reconstructed mesh too. You can visualise in rviz (topic name: /vdbmap). 
 
 ```bash
-# local
-rosservice call /save_map "path: /home/lan/Downloads/"
+string path
+float64 filter_res
+---
+bool success
+```
 
-# or docker: use /workspace/data/ to save to local path 
-rosservice call /save_map "path: /workspace/data/"
+To call the above service for saving the map, please use this example:
+
+```bash
+ros2 service call /save_map vdb_gpdf_mapping_msgs/srv/SaveMap "{filter_res: 0.005, path: '/home/lan/Downloads/'}"
 ```
 
 We have two query_map services to query the representation for distance and gradients. 
@@ -136,7 +100,7 @@ Points query service: /points_query_map
 ```bash
 float64[] points
 ---
-time stamp
+builtin_interfaces/Time stamp
 float64[] gradients
 float64[] distances
 bool[] if_observed
@@ -147,7 +111,7 @@ Slice query service: /slice_query_map
 ```bash
 float64[] slice_ranges
 ---
-time stamp
+builtin_interfaces/Time stamp
 float64[] points
 float64[] gradients
 float64[] distances
@@ -165,25 +129,19 @@ z: 0, 2.8
 Example: To query 4 points of the cow and lady dataset:
 
 ```bash
-rosservice call /points_query_map [-1.5,0,0.9,-1.5,0,1.0,-1.5,0,0.95,-1.5,0,0.96]
+ros2 service call /points_query_map vdb_gpdf_mapping_msgs/srv/PointsQueryMap "{points: [-1.5,0,0.9,-1.5,0,1.0,-1.5,0,0.95,-1.5,0,0.96]}"
 ```
 
 Example: To query a slice of the cow and lady dataset:
 
 ```bash
-rosservice call /slice_query_map [-3.0,3.0,-3.0,0.3,0.9,0.05] 
-```
-
-Example: To query a slice of the newer college dataset:
-
-```bash
-rosservice call /slice_query_map [-30,120,-140,30,0.9,0.15]
+ros2 service call /slice_query_map vdb_gpdf_mapping_msgs/srv/SliceQueryMap "{slice_ranges: [-3.0,3.0,-3.0,0.3,0.9,0.05]}"
 ```
 
 # Citation
 
 ```
-@article{wu2024vdb,
+@article{wu2025vdb,
   author={Wu, Lan and Le Gentil, Cedric and Vidal-Calleja, Teresa},
   journal={IEEE Robotics and Automation Letters}, 
   title={VDB-GPDF: Online Gaussian Process Distance Field With VDB Structure}, 
@@ -194,12 +152,6 @@ rosservice call /slice_query_map [-30,120,-140,30,0.9,0.15]
   doi={10.1109/LRA.2024.3505814}
 }
 ```
-
-# TODO
-
-- Add ROS2 revision (Done, it will be released in a few weeks)
-
-- Add the localisation framework to have live poses for the our mapping framework
 
 
 # Acknowledgement

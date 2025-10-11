@@ -1,0 +1,6 @@
+float64[] points
+---
+builtin_interfaces/Time stamp
+float64[] gradients
+float64[] distances
+bool[] if_observed

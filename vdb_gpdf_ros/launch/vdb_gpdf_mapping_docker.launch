@@ -1,8 +1,0 @@
-<launch>
-  <node pkg="vdb_gpdf_ros" type="vdb_gpdf_mapping" name="vdb_gpdf_mapping_node" output="screen">
-    <rosparam command="load" file="$(find vdb_gpdf_ros)/config/vdb_gpdf_mapping_cow.yaml"/>
-  </node>
-  <arg name="bag_file" default="/workspace/data/data.bag" />
-  <node pkg="rosbag" type="play" name="bag_play" args="$(arg bag_file) --clock -r 0.2" required="false"/>
-
-</launch>

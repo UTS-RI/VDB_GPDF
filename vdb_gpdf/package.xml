@@ -1,25 +1,25 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
   <name>vdb_gpdf</name>
   <version>1.0.0</version>
-  <description>ROS wrappper for the vdb gpdf library</description>
+  <description>ROS wrapper for the vdb gpdf library</description>
 
   <maintainer email="Lan.Wu-2@uts.edu.au">Lan Wu</maintainer>
   <license>GPL3.0</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
-  <buildtool_depend>catkin_simple</buildtool_depend>
+  <!-- Build system -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>rospy</depend>
-  <depend>roscpp</depend>
+  <!-- ROS2 dependencies -->
+  <depend>rclcpp</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>pcl_ros</depend>
-
   <depend>eigen_conversions</depend>
 
   <export>
+    <!-- ROS2 specific exports can go here -->
   </export>
-
 </package>
+
