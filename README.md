@@ -1,6 +1,11 @@
 VDB_GPDF
 ---
-In this paper, we present an online efficient mapping framework that seamlessly couples GP distance fields and the fast-access OpenVDB data structure. Currently, this repo is for ROS1, our ROS2 version will be released in a few weeks.
+In this paper, we present an online efficient mapping framework that seamlessly couples GP distance fields and the fast-access OpenVDB data structure. 
+
+## 🚀 We now support ROS1, ROS1 Docker and ROS2! 
+## 🚀 This branch is for the ROS1 version and ROS1 Docker environment.
+## 🚀 For ROS2 version, please go to [the ros2 branch](https://github.com/UTS-RI/VDB_GPDF/tree/ros2).
+## 🎉 We will present VDB-GPDF at [IROS 2025, Session Mapping 4](https://ras.papercept.net/conferences/conferences/IROS25/program/IROS25_ContentListWeb_3.html). See you there!
 
  * [Paper](https://arxiv.org/pdf/2407.09649)
  * [Video](https://youtu.be/xygIuZBvQT8)
