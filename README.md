@@ -67,7 +67,9 @@ Please remove the catkin_simple package and minkindr package in 3dparty folder i
 
 # Dataset
 
-VDB_GPDF can work with depth cameras and LiDAR datasets. It is tested using the [Cow and Lady](https://projects.asl.ethz.ch/datasets/doku.php?id=iros2017/), [Kitti](https://www.cvlibs.net/datasets/kitti/eval_odometry.php), [Newer College](https://ori-drs.github.io/newer-college-dataset/), [Mai City](https://www.ipb.uni-bonn.de/data/mai-city-dataset/index.html) datasets. You can modify the parameters in roslaunch, and config yamls to work with your own dataset. To run it with a live sensor, please disable the data_buf in yaml.
+VDB_GPDF can work with depth cameras and LiDAR datasets. For ROS1, It is tested using the [Cow and Lady](https://projects.asl.ethz.ch/datasets/doku.php?id=iros2017/), [Kitti](https://www.cvlibs.net/datasets/kitti/eval_odometry.php), [Newer College](https://ori-drs.github.io/newer-college-dataset/), [Mai City](https://www.ipb.uni-bonn.de/data/mai-city-dataset/index.html) datasets. 
+
+For ROS2, we only support the cow and lady dataset with roslaunch and yaml but you can create other ROS2 config files based on the ROS1 config files. You can also modify the parameters in roslaunch, and config yamls to work with your own dataset. To run it with a live sensor, please disable the data_buf in yaml.
 
 Temporary [link](https://studentutsedu-my.sharepoint.com/:f:/g/personal/lan_wu-2_uts_edu_au/ErIMhH3OdDFDqeBdsA85S30Bf9tlajX_SXdK44P8t3i4jw?e=pvPzP6) for a section of the Cow and Lady dataset (converted_ros2_bag.zip) for you to try quickly with ros2.
 
