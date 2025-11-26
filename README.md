@@ -1,7 +1,7 @@
 VDB_GPDF for ROS2
 ---
-## 🚀 We now support ROS1, ROS1 Docker and ROS2! 
-## 🚀 This branch is the ROS2 version of VDB-GPDF. 
+## 🚀 We now support ROS1, ROS2 and both with Docker! 
+## 🚀 This branch is the ROS2 version and ROS2 Docker for VDB-GPDF. 
 ## 🚀 For ROS1 version and ROS1 Docker environment, please go to [the main branch](https://github.com/UTS-RI/VDB_GPDF).
 ## 🎉 VDB-GPDF is accepted by RA-L 2025.
 ## 🎉 We will present VDB-GPDF at [IROS 2025, Session Mapping 4](https://ras.papercept.net/conferences/conferences/IROS25/program/IROS25_ContentListWeb_3.html). See you there!
@@ -14,6 +14,55 @@ VDB_GPDF for ROS2
 
 # Description
 The key aspect is a latent Local GP Signed Distance Field (L-GPDF) contained in a local VDB structure that allows fast queries of the Euclidean distance, surface properties and their uncertainties for points in the field of view. Probabilistic fusion is then performed by merging the inferred values of these points into a global VDB structure that is efficiently maintained over time. After fusion, the surface mesh is recovered, and a global GP Signed Distance Field (G-GPDF) is generated and made available for downstream applications to query accurate distance and gradients. 
+
+# Dataset
+
+VDB_GPDF can work with depth cameras and LiDAR datasets. For ROS1, It is tested using the [Cow and Lady](https://projects.asl.ethz.ch/datasets/doku.php?id=iros2017/), [Kitti](https://www.cvlibs.net/datasets/kitti/eval_odometry.php), [Newer College](https://ori-drs.github.io/newer-college-dataset/), [Mai City](https://www.ipb.uni-bonn.de/data/mai-city-dataset/index.html) datasets. 
+
+For ROS2, we only support the cow and lady dataset with roslaunch and yaml but you can create other ROS2 config files based on the ROS1 config files. You can also modify the parameters in roslaunch, and config yamls to work with your own dataset. To run it with a live sensor, please disable the data_buf in yaml.
+
+Temporary [link](https://studentutsedu-my.sharepoint.com/:f:/g/personal/lan_wu-2_uts_edu_au/ErIMhH3OdDFDqeBdsA85S30Bf9tlajX_SXdK44P8t3i4jw?e=pvPzP6) for a section of the Cow and Lady dataset (converted_ros2_bag.zip) for you to try quickly with ros2.
+
+# ROS2 Docker Install
+
+## Docker Build
+
+```bash
+# build through Dockerfile
+docker build -t vdbgpdf_ros2:humble .
+```
+
+## Run the image
+
+```bash
+# to run with host to have rviz visualisation
+xhost +local:docker
+```
+
+```bash
+# please download the converted_ros2_bag.zip, unzip it and modify the path in the following command
+
+docker run -it \
+    --net=host \
+    -e DISPLAY=$DISPLAY \
+    -e QT_X11_NO_MITSHM=1 \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -v /dev/shm:/dev/shm \
+    -v /home/lan/Data/converted_ros2_bag:/workspace/data \
+    --name vdbgpdf_ros2 \
+    vdbgpdf_ros2:humble
+```
+
+## Run the framework inside Docker
+
+```bash
+# please double check the path
+ros2 launch vdb_gpdf_mapping vdb_gpdf_mapping_cow.py \
+  bag_file:=/workspace/data/converted_ros2_bag.db3
+```
+
+Then the rviz will pop up and show the mapping. We can run the service to have the full reconstruction and query the distance field.
+
 
 # ROS2 Local Install
 
@@ -65,19 +114,12 @@ git clone --recurse-submodules git@github.com:UTS-RI/VDB_GPDF.git
 ```
 Please remove the catkin_simple package and minkindr package in 3dparty folder if you have them already.
 
-# Dataset
-
-VDB_GPDF can work with depth cameras and LiDAR datasets. For ROS1, It is tested using the [Cow and Lady](https://projects.asl.ethz.ch/datasets/doku.php?id=iros2017/), [Kitti](https://www.cvlibs.net/datasets/kitti/eval_odometry.php), [Newer College](https://ori-drs.github.io/newer-college-dataset/), [Mai City](https://www.ipb.uni-bonn.de/data/mai-city-dataset/index.html) datasets. 
-
-For ROS2, we only support the cow and lady dataset with roslaunch and yaml but you can create other ROS2 config files based on the ROS1 config files. You can also modify the parameters in roslaunch, and config yamls to work with your own dataset. To run it with a live sensor, please disable the data_buf in yaml.
-
-Temporary [link](https://studentutsedu-my.sharepoint.com/:f:/g/personal/lan_wu-2_uts_edu_au/ErIMhH3OdDFDqeBdsA85S30Bf9tlajX_SXdK44P8t3i4jw?e=pvPzP6) for a section of the Cow and Lady dataset (converted_ros2_bag.zip) for you to try quickly with ros2.
 
 # Run
 
 After sourcing your bash, run the roslaunch for the cow and lady dataset directly. 
 ```bash
-ros2 launch vdb_gpdf_mapping vdb_gpdf_mapping_cow.py
+ros2 launch vdb_gpdf_mapping vdb_gpdf_mapping_cow.py     bag_file:=/home/lan/Data/converted_ros2_bag/converted_ros2_bag.db3
 ```
 
 # Services
