@@ -39,16 +39,18 @@ find_package(OpenVDB REQUIRED)
 
 # include
 include_directories(
-  #${CMAKE_SOURCE_DIR}/src/vdb_gpdf/include
-  include
-  /home/lan/Code/ros2_vdbgpdf/src/vdb_gpdf/include
-  /home/lan/Code/ros2_vdbgpdf/src/vdb_gpdf_mapping/include
-  /home/lan/Code/ros2_vdbgpdf/src/3dparty/minkindr/minkindr/include
-  
+  # package's own include
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+
+  # vdb_gpdf headers (sibling package)
+  ${CMAKE_CURRENT_SOURCE_DIR}/../vdb_gpdf/include
+
+  # minkindr submodule (3dparty)
+  ${CMAKE_CURRENT_SOURCE_DIR}/../3dparty/minkindr/minkindr/include
+
+  # system / dependency includes
   ${PCL_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
-  ${catkin_INCLUDE_DIRS}
-  ${vdb_gpdf_mapping_msgs_INCLUDE_DIRS}
 )
 
 # Custom packages
