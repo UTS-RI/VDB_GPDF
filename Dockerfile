@@ -1,11 +1,30 @@
-FROM osrf/ros:noetic-desktop-full
+# ROS2 Humble desktop image (includes RViz, SLAM tools, etc.)
+FROM osrf/ros:humble-desktop
+
 LABEL maintainer="Lan Wu <Lan.Wu-2@uts.edu.au>"
 
-# Just in case we need it
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
-# install zsh
-RUN apt update && apt install -y wget git zsh tmux vim g++
+# -----------------------------
+# Base tools + Zsh environment
+# -----------------------------
+RUN apt-get update && apt-get install -y \
+    wget git zsh tmux vim g++ build-essential \
+    cmake \
+    python3-pip python3-vcstool \
+    python3-colcon-common-extensions \
+    locales \
+    && rm -rf /var/lib/apt/lists/*
+
+# Locale
+RUN locale-gen en_US en_US.UTF-8 && \
+    update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# Zsh theme and plugins
+RUN apt-get update && apt-get install -y wget git && rm -rf /var/lib/apt/lists/*
+
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.2/zsh-in-docker.sh)" -- \
     -t robbyrussell \
     -p git \
@@ -15,63 +34,45 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
     -p https://github.com/zsh-users/zsh-completions \
     -p https://github.com/zsh-users/zsh-syntax-highlighting
 
-# Install utilities
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    git \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/*
+# Default shell
+SHELL ["/usr/bin/zsh", "-c"]
 
-# Install Python3 utils
-RUN python3 -m pip install --no-cache  catkin-tools
-
-# Install extra ROS dependencies
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    ros-${ROS_DISTRO}-tf2-sensor-msgs \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install OpenVDB dependencies
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    libblosc-dev \
-    libboost-iostreams-dev \
-    libboost-system-dev \
-    libboost-system-dev \
+# -----------------------------
+# ROS2 build dependencies
+# -----------------------------
+RUN apt-get update && apt-get install -y \
+    # Math & core libraries
     libeigen3-dev \
+    libboost-all-dev \
+    # OpenVDB
+    libopenvdb-dev \
+    libtbb-dev \
+    libblosc-dev \
+    # PCL
+    libpcl-dev \
+    # Ceres / gflags / glog
+    libceres-dev \
+    libgoogle-glog-dev \
+    libgflags-dev \
+    # Misc tools
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# Install OpenVDB from source, use -j$(nproc) if with enough ram and swap
-RUN git clone --depth 1 https://github.com/nachovizzo/openvdb.git -b nacho/vdbfusion \
-    && cd openvdb \
-    && mkdir build && cd build \
-    && cmake  -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DUSE_ZLIB=OFF .. \
-    && make -j4 all install \
-    && cd / \
-    && rm -rf /openvdb
-
-# vdb_gpdf_mapping
-RUN echo "source /opt/ros/noetic/setup.zsh" >> ~/.zshrc
-RUN echo "source /opt/ros/noetic/setup.bashrc" >> ~/.bashrc
-
-# install glog
-RUN mkdir -p /workspace/lib \
-    && cd /workspace/lib \
-    && git clone https://github.com/google/glog.git \
-    && cd glog \
-    && git fetch --all --tags \
-    && git checkout tags/v0.4.0 -b v0.4.0 \
-    && mkdir build && cd build \
-    && cmake .. && make -j$(nproc) \
-    && make install
-
-# install gflag
-RUN cd /workspace/lib \
-    && git clone https://github.com/gflags/gflags.git \
-    && cd gflags \
-    && mkdir build && cd build \
-    && cmake .. -DBUILD_SHARED_LIBS=ON && make \
-    && make install
-
-RUN cd ~ \
-    && rm -rf /workspace/lib
-
-RUN mkdir -p /workspace/vdb_gpdf_mapping_ws /workspace/data
+# -----------------------------
+# ROS2 workspace setup
+# -----------------------------
+RUN mkdir -p /workspace/vdb_gpdf_mapping_ws/src /workspace/data
 WORKDIR /workspace/vdb_gpdf_mapping_ws
+
+# Clone the repository (ROS2 branch)
+RUN git clone --recurse-submodules https://github.com/UTS-RI/VDB_GPDF.git src/VDB_GPDF && \
+    cd src/VDB_GPDF && \
+    git checkout ros2
+
+# ROS2 environment defaults for Zsh
+RUN echo 'source /opt/ros/humble/setup.zsh' >> /root/.zshrc && \
+    echo 'export ROS_DOMAIN_ID=0' >> /root/.zshrc && \
+    echo 'export RMW_IMPLEMENTATION=rmw_fastrtps_cpp' >> /root/.zshrc
+
+# Default command
+CMD ["zsh"]

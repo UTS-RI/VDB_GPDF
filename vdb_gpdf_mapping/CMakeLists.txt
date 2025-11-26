@@ -127,6 +127,12 @@ ament_target_dependencies(testing
 
 install(TARGETS
   ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib
+)
+
+install(TARGETS
   vdb_gpdf_mapping_node
   testing
   DESTINATION lib/${PROJECT_NAME}
@@ -142,6 +148,11 @@ install(DIRECTORY launch
 
 install(
   DIRECTORY config
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(
+  DIRECTORY rviz
   DESTINATION share/${PROJECT_NAME}
 )
 
