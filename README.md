@@ -2,7 +2,7 @@ VDB_GPDF
 ---
 In this paper, we present an online efficient mapping framework that seamlessly couples GP distance fields and the fast-access OpenVDB data structure. 
 
-## 🚀 We now support ROS1, ROS1 Docker and ROS2! 
+## 🚀 We now support ROS1, ROS1 Docker, ROS2 and ROS2 Docker! 
 ## 🚀 This branch is for the ROS1 version and ROS1 Docker environment.
 ## 🚀 For ROS2 version, please go to [the ros2 branch](https://github.com/UTS-RI/VDB_GPDF/tree/ros2).
 ## 🎉 We will present VDB-GPDF at [IROS 2025, Session Mapping 4](https://ras.papercept.net/conferences/conferences/IROS25/program/IROS25_ContentListWeb_3.html). See you there!
@@ -105,7 +105,7 @@ Please remove the catkin_simple package and minkindr package in 3dparty folder i
 
 VDB_GPDF can work with depth cameras and LiDAR datasets. It is tested using the [Cow and Lady](https://projects.asl.ethz.ch/datasets/doku.php?id=iros2017/), [Kitti](https://www.cvlibs.net/datasets/kitti/eval_odometry.php), [Newer College](https://ori-drs.github.io/newer-college-dataset/), [Mai City](https://www.ipb.uni-bonn.de/data/mai-city-dataset/index.html) datasets. You can modify the parameters in roslaunch, and config yamls to work with your own dataset. To run it with a live sensor, please disable the data_buf in yaml.
 
-Temporary [link](https://studentutsedu-my.sharepoint.com/:f:/g/personal/lan_wu-2_uts_edu_au/ErIMhH3OdDFDqeBdsA85S30Bf9tlajX_SXdK44P8t3i4jw?e=pvPzP6) for a section of the Cow and Lady dataset (data_220_820.zip) and the newer college quad dataset (quad_easy_lidar_labelled_tf.zip) for you to try quickly.
+Temporary [link](https://studentutsedu-my.sharepoint.com/:f:/g/personal/lan_wu-2_uts_edu_au/ErIMhH3OdDFDqeBdsA85S30Bf9tlajX_SXdK44P8t3i4jw?e=pvPzP6) for a section of the Cow and Lady dataset (data_220_820.zip) and the newer college quad dataset (quad_easy_lidar_labelled_tf.zip) for you to try quickly. For any issue with the rosbag, please create an issue directly.
 
 # Run
 
